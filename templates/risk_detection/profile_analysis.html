@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Fake Profile Detection — Scam Shield{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header Navigation -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">PILLAR 1</span>
+                <span class="text-secondary small">&bull; Social Media Risk Engine</span>
+            </div>
+            <h2 class="fw-bold text-white mb-0">
+                <i class="bi bi-person-bounding-box text-info me-2"></i>Fake Profile Detection
+            </h2>
+            <p class="text-secondary small mb-0 mt-1">
+                Analyze account metadata, follower ratios, age, and bio patterns to calculate an explainable 0–100 risk score.
+            </p>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a href="{% url 'dashboard:home' %}" class="btn btn-cyber-outline btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i>Dashboard
+            </a>
+            <a href="{% url 'dashboard:history' %}" class="btn btn-cyber-outline btn-sm">
+                <i class="bi bi-clock-history me-1"></i>History
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Demo Preset Buttons -->
+    <div class="cyber-card p-3 mb-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <span class="text-secondary small fw-semibold">
+            <i class="bi bi-lightning-charge text-warning me-1"></i>Hackathon Quick Demo Presets:
+        </span>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="loadSuspiciousPreset()">
+                <i class="bi bi-exclamation-triangle me-1"></i>Fill Suspicious Bot Profile
+            </button>
+            <button type="button" class="btn btn-outline-success btn-sm" onclick="loadGenuinePreset()">
+                <i class="bi bi-check-circle me-1"></i>Fill Genuine Account
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Form Card -->
+        <div class="col-lg-6">
+            <div class="cyber-card p-4 h-100">
+                <h5 class="fw-bold text-white mb-3">
+                    <i class="bi bi-input-cursor-text text-info me-2"></i>Target Profile Parameters
+                </h5>
+
+                <form method="post" id="profileForm" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small fw-semibold">Username *</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small fw-semibold">Display Name</label>
+                            {{ form.display_name }}
+                            {% if form.display_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.display_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small fw-semibold">Followers Count *</label>
+                            {{ form.followers }}
+                            {% if form.followers.errors %}
+                                <div class="text-danger small mt-1">{{ form.followers.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small fw-semibold">Following Count *</label>
+                            {{ form.following }}
+                            {% if form.following.errors %}
+                                <div class="text-danger small mt-1">{{ form.following.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small fw-semibold">Number of Posts *</label>
+                            {{ form.posts }}
+                            {% if form.posts.errors %}
+                                <div class="text-danger small mt-1">{{ form.posts.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <label class="form-label text-secondary small fw-semibold">Account Age (Days) *</label>
+                            {{ form.account_age_days }}
+                            {% if form.account_age_days.errors %}
+                                <div class="text-danger small mt-1">{{ form.account_age_days.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-secondary small fw-semibold">Biography / Bio Text</label>
+                            {{ form.bio }}
+                            {% if form.bio.errors %}
+                                <div class="text-danger small mt-1">{{ form.bio.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label text-secondary small fw-semibold">External Link / Website URL</label>
+                            {{ form.external_link }}
+                            {% if form.external_link.errors %}
+                                <div class="text-danger small mt-1">{{ form.external_link.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.is_verified }}
+                                <label class="form-check-label text-light small fw-semibold" for="{{ form.is_verified.id_for_label }}">
+                                    Verified Account Badge
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="form-check form-switch mt-2">
+                                {{ form.has_profile_pic }}
+                                <label class="form-check-label text-light small fw-semibold" for="{{ form.has_profile_pic.id_for_label }}">
+                                    Has Profile Photo
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-2">
+                        <button type="submit" class="btn btn-cyber-primary w-100 py-2">
+                            <i class="bi bi-shield-shaded me-2"></i>Run AI Risk Assessment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right: Assessment Results Panel -->
+        <div class="col-lg-6">
+            {% if result %}
+                <div class="cyber-card p-4 h-100 border-start {% if result.risk_score >= 70 %}border-danger{% elif result.risk_score >= 40 %}border-warning{% else %}border-success{% endif %} border-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-secondary small fw-semibold text-uppercase tracking-wider">
+                            <i class="bi bi-cpu text-info me-1"></i>Risk Engine Verdict
+                        </span>
+                        <span class="risk-badge {% if result.risk_score >= 70 %}risk-high{% elif result.risk_score >= 40 %}risk-suspicious{% else %}risk-safe{% endif %}">
+                            {{ result.risk_level }}
+                        </span>
+                    </div>
+
+                    <!-- Gauge Display -->
+                    <div class="text-center py-3">
+                        <div class="small text-secondary text-uppercase fw-semibold tracking-wider mb-1">Calculated Risk Index</div>
+                        <div class="display-1 fw-bold score-number {% if result.risk_score >= 70 %}text-danger{% elif result.risk_score >= 40 %}text-warning{% else %}text-success{% endif %}">
+                            {{ result.risk_score }}<span class="fs-4 text-secondary">/100</span>
+                        </div>
+                        <div class="fw-bold fs-5 mt-1 {% if result.risk_score >= 70 %}text-danger{% elif result.risk_score >= 40 %}text-warning{% else %}text-success{% endif %}">
+                            {% if result.risk_score >= 70 %}HIGH RISK PROFILE
+                            {% elif result.risk_score >= 40 %}SUSPICIOUS ACTIVITY
+                            {% else %}SAFE / LOW RISK{% endif %}
+                        </div>
+                        <div class="text-muted small mt-1">
+                            Heuristic Confidence: <strong class="text-white">{{ result.confidence }}%</strong>
+                        </div>
+                    </div>
+
+                    <!-- Explainable Risk Factors -->
+                    <div class="border-top border-secondary border-opacity-25 pt-3 mb-3">
+                        <h6 class="text-white fw-bold mb-2 small text-uppercase tracking-wider">
+                            <i class="bi bi-lightbulb text-warning me-1"></i>Explainable Risk Factors:
+                        </h6>
+                        <ul class="list-group list-group-flush bg-transparent">
+                            {% for reason in result.reasons %}
+                                <li class="list-group-item bg-transparent text-white px-0 py-1 border-0 small d-flex align-items-start gap-2">
+                                    <i class="bi bi-arrow-right-short text-info fs-5 lh-1 mt-0"></i>
+                                    <span>{{ reason }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <!-- Factor Contribution Weights Table -->
+                    {% if result.factor_weights %}
+                        <div class="border-top border-secondary border-opacity-25 pt-3 mb-3">
+                            <h6 class="text-white fw-bold mb-2 small text-uppercase tracking-wider">
+                                Feature Contribution Weights:
+                            </h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-dark table-bordered border-secondary mb-0">
+                                    <tbody>
+                                        {% for feat, weight in result.factor_weights.items %}
+                                            <tr class="small">
+                                                <td class="text-secondary">{{ feat }}</td>
+                                                <td class="text-end fw-mono {% if weight > 0 %}text-danger{% else %}text-success{% endif %}">
+                                                    {% if weight > 0 %}+{{ weight }}{% else %}{{ weight }}{% endif %} pts
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Recommendation Box -->
+                    <div class="cyber-card-static p-3 bg-dark border-secondary mb-3">
+                        <div class="small fw-semibold text-warning mb-1">
+                            <i class="bi bi-shield-exclamation me-1"></i>Analyst Recommendation:
+                        </div>
+                        <p class="small text-light mb-0">
+                            {{ result.recommendation }}
+                        </p>
+                    </div>
+
+                    {% if saved_record %}
+                        <div class="text-end">
+                            <a href="{% url 'dashboard:record_detail' saved_record.pk %}" class="btn btn-cyber-outline btn-sm">
+                                <i class="bi bi-file-earmark-medical me-1"></i>View Full Report (#{{ saved_record.pk }})
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% else %}
+                <!-- Empty Educational Guide Card -->
+                <div class="cyber-card p-4 h-100 d-flex flex-column justify-content-center text-center">
+                    <div class="feature-icon-box icon-cyan mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.8rem;">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h5 class="fw-bold text-white mb-2">Awaiting Target Profile Parameters</h5>
+                    <p class="text-secondary small mb-4 col-md-10 mx-auto">
+                        Enter username, follower/following stats, account age, and bio text on the left, or use the quick demo presets above to evaluate risk.
+                    </p>
+
+                    <div class="border-top border-secondary border-opacity-25 pt-3 text-start small">
+                        <div class="text-white fw-semibold mb-2">Signals Evaluated by the Heuristic Engine:</div>
+                        <div class="text-secondary mb-1"><i class="bi bi-check2 text-info me-2"></i>Follower-to-following ratio disparity</div>
+                        <div class="text-secondary mb-1"><i class="bi bi-check2 text-info me-2"></i>Account longevity & daily post velocity</div>
+                        <div class="text-secondary mb-1"><i class="bi bi-check2 text-info me-2"></i>Randomized digits or impersonator keywords in handle</div>
+                        <div class="text-secondary mb-1"><i class="bi bi-check2 text-info me-2"></i>Bio redirect lures (Telegram, WhatsApp, crypto prizes)</div>
+                        <div class="text-secondary"><i class="bi bi-check2 text-info me-2"></i>Verified status and profile completeness</div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function loadSuspiciousPreset() {
+    document.getElementById('id_username').value = 'elon_crypto_rewards_992';
+    document.getElementById('id_display_name').value = 'Elon Musk (Official Bonus)';
+    document.getElementById('id_followers').value = '14';
+    document.getElementById('id_following').value = '4200';
+    document.getElementById('id_posts').value = '1';
+    document.getElementById('id_account_age_days').value = '3';
+    document.getElementById('id_bio').value = 'Official Tesla promotional giveaway! DM on Telegram @elon_bonus to claim ₹50,000 lottery voucher immediately.';
+    document.getElementById('id_external_link').value = 'https://bit.ly/crypto-giveaway-claim';
+    document.getElementById('id_is_verified').checked = false;
+    document.getElementById('id_has_profile_pic').checked = false;
+}
+
+function loadGenuinePreset() {
+    document.getElementById('id_username').value = 'nasa_official_archive';
+    document.getElementById('id_display_name').value = 'NASA Earth Science';
+    document.getElementById('id_followers').value = '95000';
+    document.getElementById('id_following').value = '180';
+    document.getElementById('id_posts').value = '1420';
+    document.getElementById('id_account_age_days').value = '2100';
+    document.getElementById('id_bio').value = 'Official NASA Earth Science updates. Exploring the secrets of our home planet from space.';
+    document.getElementById('id_external_link').value = 'https://nasa.gov/earth';
+    document.getElementById('id_is_verified').checked = true;
+    document.getElementById('id_has_profile_pic').checked = true;
+}
+</script>
+{% endblock %}
