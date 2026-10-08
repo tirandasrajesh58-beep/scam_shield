@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Scam Shield — AI-Powered Digital Risk Protection Platform{% endblock %}</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Google Fonts (Inter & JetBrains Mono) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Custom Scam Shield CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="cyber-bg">
+
+    <!-- Top Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-cyber sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'dashboard:landing' %}">
+                <i class="bi bi-shield-lock-fill text-info fs-4"></i>
+                <span class="fw-bold tracking-tight">SCAM SHIELD</span>
+                <span class="brand-badge ms-1">AI Risk Engine</span>
+            </a>
+            
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard:landing' %}"><i class="bi bi-house me-1"></i>Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard:home' %}"><i class="bi bi-speedometer2 me-1"></i>Dashboard</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-cpu me-1"></i>Detection Modules
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark">
+                            <li><a class="dropdown-item" href="{% url 'risk_detection:profile_analyze' %}"><i class="bi bi-person-badge me-2 text-info"></i>Fake Profile Detection</a></li>
+                            <li><a class="dropdown-item" href="{% url 'risk_detection:message_analyze' %}"><i class="bi bi-chat-left-dots me-2 text-primary"></i>Scam Message NLP</a></li>
+                            <li><a class="dropdown-item" href="{% url 'impersonation:analyze' %}"><i class="bi bi-people me-2 text-warning"></i>Impersonation Detection</a></li>
+                            <li><a class="dropdown-item" href="{% url 'app_analysis:analyze' %}"><i class="bi bi-file-earmark-code me-2 text-danger"></i>Mobile APK Analysis</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard:history' %}"><i class="bi bi-clock-history me-1"></i>History</a>
+                    </li>
+                </ul>
+
+                <!-- Auth Buttons -->
+                <div class="d-flex align-items-center gap-2">
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <button class="btn btn-cyber-outline dropdown-toggle py-1 px-3" type="button" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle me-1 text-info"></i>{{ user.username }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-gear me-2"></i>Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'accounts:logout' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right me-2"></i>Logout</button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}" class="btn btn-cyber-outline py-1 px-3">Login</a>
+                        <a href="{% url 'accounts:register' %}" class="btn btn-cyber-primary py-1 px-3">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Global Messages Container -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show cyber-card-static border-0 text-white" role="alert">
+                    <i class="bi bi-info-circle me-2"></i>{{ message }}
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Page Content Block -->
+    <main class="flex-grow-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-4 mt-5 text-secondary">
+        <div class="container">
+            <div class="row align-items-center gy-3">
+                <div class="col-md-6 text-center text-md-start">
+                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-1">
+                        <i class="bi bi-shield-check text-info fs-5"></i>
+                        <span class="text-white fw-bold">SCAM SHIELD</span>
+                        <span class="text-muted small">| Detect. Protect. Trust.</span>
+                    </div>
+                    <p class="small text-muted mb-0">
+                        AI-Powered Digital Risk Protection Platform &bull; Built for Hackathon Demo
+                    </p>
+                </div>
+                <div class="col-md-6 text-center text-md-end">
+                    <span class="badge bg-dark border border-secondary text-secondary p-2 mb-1">
+                        <i class="bi bi-cpu me-1 text-info"></i>Unified Risk Engine (0–100 Scale)
+                    </span>
+                    <p class="small text-muted mb-0 mt-1">
+                        Disclaimer: AI-based risk assessment prototype. Predictions represent probabilistic indicators.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Scam Shield JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
