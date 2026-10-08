@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Confirm Delete Analysis Record — Scam Shield{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="cyber-card p-4 p-md-5 text-center">
+                <div class="feature-icon-box icon-red mx-auto mb-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <h4 class="fw-bold text-white mb-2">Delete Threat Record?</h4>
+                <p class="text-secondary small mb-4">
+                    Are you sure you want to permanently delete the analysis record for:
+                    <br><strong class="text-white mt-1 d-inline-block">{{ record.input_summary }}</strong>
+                    <br><span class="text-muted small">Score: {{ record.risk_score }}/100 &bull; {{ record.created_at|date:"M d, Y" }}</span>
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="{% url 'dashboard:history' %}" class="btn btn-cyber-outline px-4">
+                            Cancel
+                        </a>
+                        <button type="submit" class="btn btn-danger px-4">
+                            <i class="bi bi-trash me-1"></i>Yes, Delete
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

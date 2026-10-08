@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Threat Analysis History — Scam Shield{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+        <div>
+            <h2 class="fw-bold text-white mb-1">
+                <i class="bi bi-clock-history text-info me-2"></i>Analysis History & Threat Logs
+            </h2>
+            <p class="text-secondary small mb-0">
+                Review and filter past AI risk assessments performed under your analyst session.
+            </p>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a href="{% url 'dashboard:home' %}" class="btn btn-cyber-outline btn-sm">
+                <i class="bi bi-speedometer2 me-1"></i>Operations Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter & Search Controls Form -->
+    <div class="cyber-card p-3 mb-4">
+        <form method="get" class="row g-3 align-items-end">
+            <!-- Search Text Input -->
+            <div class="col-md-4">
+                <label class="form-label text-secondary small fw-semibold">Search Target / Keyword</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-dark border-secondary text-secondary"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control bg-dark text-white border-secondary" placeholder="Username, message snippet..." value="{{ search_query }}">
+                </div>
+            </div>
+
+            <!-- Modality / Type Filter -->
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label text-secondary small fw-semibold">Detection Modality</label>
+                <select name="type" class="form-select form-select-sm bg-dark text-white border-secondary">
+                    <option value="" {% if not selected_type %}selected{% endif %}>All Modalities</option>
+                    <option value="PROFILE" {% if selected_type == 'PROFILE' %}selected{% endif %}>Fake Profile Detection</option>
+                    <option value="MESSAGE" {% if selected_type == 'MESSAGE' %}selected{% endif %}>Scam Message NLP</option>
+                    <option value="IMPERSONATION" {% if selected_type == 'IMPERSONATION' %}selected{% endif %}>Impersonation Check</option>
+                    <option value="APP" {% if selected_type == 'APP' %}selected{% endif %}>Mobile APK Analysis</option>
+                </select>
+            </div>
+
+            <!-- Risk Level Filter -->
+            <div class="col-sm-6 col-md-3">
+                <label class="form-label text-secondary small fw-semibold">Risk Severity Level</label>
+                <select name="level" class="form-select form-select-sm bg-dark text-white border-secondary">
+                    <option value="" {% if not selected_level %}selected{% endif %}>All Severity Levels</option>
+                    <option value="SAFE" {% if selected_level == 'SAFE' %}selected{% endif %}>Safe / Low Risk (0–39)</option>
+                    <option value="SUSPICIOUS" {% if selected_level == 'SUSPICIOUS' %}selected{% endif %}>Suspicious / Medium (40–69)</option>
+                    <option value="HIGH_RISK" {% if selected_level == 'HIGH_RISK' %}selected{% endif %}>High Risk (70–100)</option>
+                </select>
+            </div>
+
+            <!-- Submit Filter Buttons -->
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-cyber-primary btn-sm flex-grow-1">
+                    <i class="bi bi-funnel me-1"></i>Filter
+                </button>
+                <a href="{% url 'dashboard:history' %}" class="btn btn-cyber-outline btn-sm" title="Clear Filters">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- History Table -->
+    <div class="cyber-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-secondary small fw-semibold">
+                Showing <strong>{{ total_filtered }}</strong> threat records
+            </span>
+        </div>
+
+        {% if records %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+                    <thead>
+                        <tr class="text-secondary small text-uppercase" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <th>Type</th>
+                            <th>Target / Input Summary</th>
+                            <th>Score</th>
+                            <th>Risk Level</th>
+                            <th>Confidence</th>
+                            <th>Timestamp</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in records %}
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td>
+                                    <span class="badge bg-dark border border-secondary text-white py-1 px-2">
+                                        <i class="bi {{ record.type_icon }} me-1 text-info"></i>{{ record.get_analysis_type_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-white d-inline-block text-truncate" style="max-width: 280px;" title="{{ record.input_summary }}">
+                                        {{ record.input_summary }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold score-number fs-6 {% if record.risk_score >= 70 %}text-danger{% elif record.risk_score >= 40 %}text-warning{% else %}text-success{% endif %}">
+                                        {{ record.risk_score }}/100
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="risk-badge {{ record.badge_class }}">
+                                        {{ record.get_risk_level_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-secondary small">{{ record.confidence }}%</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">{{ record.created_at|date:"M d, Y H:i" }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'dashboard:record_detail' record.pk %}" class="btn btn-cyber-outline btn-sm py-1 px-2 me-1" title="View Full Report">
+                                        <i class="bi bi-eye"></i> Report
+                                    </a>
+                                    <a href="{% url 'dashboard:record_delete' record.pk %}" class="btn btn-outline-danger btn-sm py-1 px-2" title="Delete Record">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-funnel text-secondary fs-1 mb-2 d-block"></i>
+                <h5 class="text-white fw-bold">No Records Match Filters</h5>
+                <p class="text-secondary small mb-3">Try clearing or adjusting your search filters.</p>
+                <a href="{% url 'dashboard:history' %}" class="btn btn-cyber-outline btn-sm">Clear Filters</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+{% endblock %}

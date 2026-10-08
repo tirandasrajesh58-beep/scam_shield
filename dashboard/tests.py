@@ -1,9 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from django.urls import reverse
 from dashboard.models import AnalysisRecord
 
-class AnalysisRecordModelTests(TestCase):
+class DashboardViewTests(TestCase):
     def setUp(self):
+        self.client = Client()
         self.user1 = User.objects.create_user(username='analyst1', password='Password123!')
         self.user2 = User.objects.create_user(username='analyst2', password='Password123!')
 
@@ -31,18 +33,41 @@ class AnalysisRecordModelTests(TestCase):
             recommendation='Block sender and report phishing.'
         )
 
-    def test_record_creation_and_properties(self):
-        """Test record fields and dynamic badge helpers."""
-        self.assertEqual(self.record1.badge_class, 'risk-high')
-        self.assertEqual(self.record1.type_icon, 'bi-person-badge')
-        self.assertIn('@crypto_giveaway_bot', str(self.record1))
+    def test_dashboard_kpis_and_context(self):
+        """Verify dashboard view computes proper counts for user1."""
+        self.client.login(username='analyst1', password='Password123!')
+        response = self.client.get(reverse('dashboard:home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total_count'], 1)
+        self.assertEqual(response.context['high_risk_count'], 1)
+        self.assertEqual(response.context['safe_count'], 0)
+        self.assertContains(response, '@crypto_giveaway_bot')
 
-    def test_user_data_isolation(self):
-        """Verify analyst 1 only retrieves their own records."""
-        user1_records = AnalysisRecord.objects.filter(user=self.user1)
-        self.assertEqual(user1_records.count(), 1)
-        self.assertEqual(user1_records.first().input_summary, '@crypto_giveaway_bot')
+    def test_history_filtering(self):
+        """Test history view filters by analysis_type."""
+        self.client.login(username='analyst1', password='Password123!')
+        response = self.client.get(reverse('dashboard:history') + '?type=PROFILE')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['records'].count(), 1)
 
-        user2_records = AnalysisRecord.objects.filter(user=self.user2)
-        self.assertEqual(user2_records.count(), 1)
-        self.assertEqual(user2_records.first().input_summary, 'You won Rs 50,000! Click here immediately')
+        response_empty = self.client.get(reverse('dashboard:history') + '?type=MESSAGE')
+        self.assertEqual(response_empty.context['records'].count(), 0)
+
+    def test_record_detail_access_control(self):
+        """User 1 can see record 1; User 2 receives 404 trying to see record 1."""
+        self.client.login(username='analyst1', password='Password123!')
+        response = self.client.get(reverse('dashboard:record_detail', args=[self.record1.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Explainable Threat Assessment Report')
+
+        # User 2 cannot access user 1's record
+        self.client.login(username='analyst2', password='Password123!')
+        response_forbidden = self.client.get(reverse('dashboard:record_detail', args=[self.record1.pk]))
+        self.assertEqual(response_forbidden.status_code, 404)
+
+    def test_record_delete(self):
+        """User can delete their own record."""
+        self.client.login(username='analyst1', password='Password123!')
+        response = self.client.post(reverse('dashboard:record_delete', args=[self.record1.pk]), follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(AnalysisRecord.objects.filter(pk=self.record1.pk).exists())

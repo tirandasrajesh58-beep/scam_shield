@@ -1,82 +1,355 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Operations Dashboard — Scam Shield{% endblock %}
+{% block title %}Cybersecurity Dashboard — Scam Shield{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <!-- Top Header & Welcome Banner -->
+
+    <!-- Top Analyst Header & Welcome Bar -->
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
         <div>
-            <h2 class="fw-bold text-white mb-1">
-                <i class="bi bi-shield-lock-fill text-info me-2"></i>Security Operations Center
+            <div class="d-flex align-items-center gap-2 mb-1">
+                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25">SECURITY OPERATIONS CENTER</span>
+                <span class="text-secondary small">&bull; Real-time AI Risk Monitoring</span>
+            </div>
+            <h2 class="fw-bold text-white mb-0">
+                <i class="bi bi-shield-shaded text-info me-2"></i>Security Operations Center
             </h2>
-            <p class="text-secondary small mb-0">
-                Welcome back, <strong>{{ user.username }}</strong> &bull; {{ user.profile.role|default:"Security Analyst" }} ({{ user.profile.organization|default:"Scam Shield" }})
+            <p class="text-secondary small mb-0 mt-1">
+                Analyst: <strong class="text-white">{{ user.username }}</strong> &bull; {{ user.profile.role|default:"Security Analyst" }} ({{ user.profile.organization|default:"Scam Shield" }})
             </p>
         </div>
         <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a href="{% url 'dashboard:history' %}" class="btn btn-cyber-outline btn-sm">
+                <i class="bi bi-clock-history me-1"></i>View Full History
+            </a>
             <a href="{% url 'accounts:profile' %}" class="btn btn-cyber-outline btn-sm">
                 <i class="bi bi-person-gear me-1"></i>Profile Settings
             </a>
-            <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-danger btn-sm">
-                    <i class="bi bi-box-arrow-right me-1"></i>Logout
-                </button>
-            </form>
         </div>
     </div>
 
-    <!-- Quick Action Launchpad -->
+    <!-- Quick Action Launchpad: 5 Prominent Buttons -->
+    <div class="mb-4">
+        <h6 class="text-secondary small fw-semibold text-uppercase tracking-wider mb-3">
+            <i class="bi bi-lightning-charge text-warning me-1"></i>Quick Threat Analysis Launchpad
+        </h6>
+        <div class="row g-3">
+            <div class="col-6 col-md-4 col-lg">
+                <a href="{% url 'risk_detection:profile_analyze' %}" class="cyber-card p-3 d-flex flex-column align-items-center text-center text-decoration-none h-100">
+                    <div class="feature-icon-box icon-cyan m-0 mb-2">
+                        <i class="bi bi-person-bounding-box"></i>
+                    </div>
+                    <span class="text-white fw-bold small">Analyze Profile</span>
+                    <span class="text-muted small">Fake profile ML</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg">
+                <a href="{% url 'risk_detection:message_analyze' %}" class="cyber-card p-3 d-flex flex-column align-items-center text-center text-decoration-none h-100">
+                    <div class="feature-icon-box icon-blue m-0 mb-2">
+                        <i class="bi bi-chat-left-dots"></i>
+                    </div>
+                    <span class="text-white fw-bold small">Analyze Message</span>
+                    <span class="text-muted small">NLP phishing audit</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg">
+                <a href="{% url 'impersonation:analyze' %}" class="cyber-card p-3 d-flex flex-column align-items-center text-center text-decoration-none h-100">
+                    <div class="feature-icon-box icon-purple m-0 mb-2">
+                        <i class="bi bi-people"></i>
+                    </div>
+                    <span class="text-white fw-bold small">Check Impersonation</span>
+                    <span class="text-muted small">Account comparison</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg">
+                <a href="{% url 'app_analysis:analyze' %}" class="cyber-card p-3 d-flex flex-column align-items-center text-center text-decoration-none h-100">
+                    <div class="feature-icon-box icon-red m-0 mb-2">
+                        <i class="bi bi-file-earmark-code"></i>
+                    </div>
+                    <span class="text-white fw-bold small">Analyze Mobile App</span>
+                    <span class="text-muted small">Static APK scanner</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-4 col-lg">
+                <a href="{% url 'dashboard:history' %}" class="cyber-card p-3 d-flex flex-column align-items-center text-center text-decoration-none h-100">
+                    <div class="feature-icon-box m-0 mb-2" style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.3);">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <span class="text-white fw-bold small">View History</span>
+                    <span class="text-muted small">Audit logs & reports</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5 KPI Metric Cards -->
     <div class="row g-3 mb-4">
-        <div class="col-sm-6 col-lg-3">
-            <div class="cyber-card p-3 text-center">
-                <i class="bi bi-person-bounding-box text-info fs-3 mb-2 d-block"></i>
-                <h6 class="text-white fw-bold mb-1">Fake Profile</h6>
-                <p class="text-secondary small mb-2">Check suspicious handles</p>
-                <a href="{% url 'risk_detection:profile_analyze' %}" class="btn btn-cyber-outline btn-sm w-100">Analyze</a>
+        <div class="col-sm-6 col-xl">
+            <div class="cyber-card p-3 h-100 border-start border-info border-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-secondary small fw-semibold text-uppercase">Total Analyses</span>
+                    <i class="bi bi-activity text-info fs-5"></i>
+                </div>
+                <div class="display-6 fw-bold text-white score-number">{{ total_count }}</div>
+                <div class="text-muted small mt-1">Logged across all modules</div>
             </div>
         </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="cyber-card p-3 text-center">
-                <i class="bi bi-chat-left-dots text-primary fs-3 mb-2 d-block"></i>
-                <h6 class="text-white fw-bold mb-1">Scam Message</h6>
-                <p class="text-secondary small mb-2">NLP phishing audit</p>
-                <a href="{% url 'risk_detection:message_analyze' %}" class="btn btn-cyber-outline btn-sm w-100">Scan Text</a>
+
+        <div class="col-sm-6 col-xl">
+            <div class="cyber-card p-3 h-100 border-start border-success border-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-secondary small fw-semibold text-uppercase">Safe (0–39)</span>
+                    <i class="bi bi-shield-check text-success fs-5"></i>
+                </div>
+                <div class="display-6 fw-bold text-success score-number">{{ safe_count }}</div>
+                <div class="text-muted small mt-1">Low threat evaluations</div>
             </div>
         </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="cyber-card p-3 text-center">
-                <i class="bi bi-people text-warning fs-3 mb-2 d-block"></i>
-                <h6 class="text-white fw-bold mb-1">Impersonation</h6>
-                <p class="text-secondary small mb-2">Compare brand accounts</p>
-                <a href="{% url 'impersonation:analyze' %}" class="btn btn-cyber-outline btn-sm w-100">Compare</a>
+
+        <div class="col-sm-6 col-xl">
+            <div class="cyber-card p-3 h-100 border-start border-warning border-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-secondary small fw-semibold text-uppercase">Suspicious (40–69)</span>
+                    <i class="bi bi-exclamation-triangle text-warning fs-5"></i>
+                </div>
+                <div class="display-6 fw-bold text-warning score-number">{{ suspicious_count }}</div>
+                <div class="text-muted small mt-1">Medium threat signals</div>
             </div>
         </div>
-        <div class="col-sm-6 col-lg-3">
-            <div class="cyber-card p-3 text-center">
-                <i class="bi bi-file-earmark-code text-danger fs-3 mb-2 d-block"></i>
-                <h6 class="text-white fw-bold mb-1">Mobile APK</h6>
-                <p class="text-secondary small mb-2">Zero-execution audit</p>
-                <a href="{% url 'app_analysis:analyze' %}" class="btn btn-cyber-outline btn-sm w-100">Inspect APK</a>
+
+        <div class="col-sm-6 col-xl">
+            <div class="cyber-card p-3 h-100 border-start border-danger border-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-secondary small fw-semibold text-uppercase">High Risk (70–100)</span>
+                    <i class="bi bi-shield-slash text-danger fs-5"></i>
+                </div>
+                <div class="display-6 fw-bold text-danger score-number">{{ high_risk_count }}</div>
+                <div class="text-muted small mt-1">Severe threat alerts</div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl">
+            <div class="cyber-card p-3 h-100 border-start border-primary border-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-secondary small fw-semibold text-uppercase">Avg Risk Score</span>
+                    <i class="bi bi-speedometer text-primary fs-5"></i>
+                </div>
+                <div class="display-6 fw-bold text-white score-number">
+                    {{ avg_score }}<span class="fs-6 text-muted">/100</span>
+                </div>
+                <div class="text-muted small mt-1">Overall threat index</div>
             </div>
         </div>
     </div>
 
-    <!-- Protected Status Info Banner -->
-    <div class="cyber-card p-4">
-        <div class="d-flex align-items-center gap-3">
-            <div class="feature-icon-box icon-cyan m-0">
-                <i class="bi bi-shield-check"></i>
+    <!-- Charts Section -->
+    <div class="row g-4 mb-4">
+        <!-- Chart 1: Risk Severity Distribution (Doughnut) -->
+        <div class="col-lg-5">
+            <div class="cyber-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-white fw-bold mb-0">
+                        <i class="bi bi-pie-chart text-info me-2"></i>Risk Severity Distribution
+                    </h6>
+                    <span class="badge bg-dark border border-secondary text-secondary small">Real-time</span>
+                </div>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="riskDistributionChart"></canvas>
+                </div>
+                <div class="d-flex justify-content-center gap-4 mt-3 small text-secondary">
+                    <div><span class="badge bg-success me-1">&bull;</span> Safe: {{ safe_count }}</div>
+                    <div><span class="badge bg-warning text-dark me-1">&bull;</span> Suspicious: {{ suspicious_count }}</div>
+                    <div><span class="badge bg-danger me-1">&bull;</span> High Risk: {{ high_risk_count }}</div>
+                </div>
             </div>
-            <div>
-                <h5 class="text-white fw-bold mb-1">Authentication Verified</h5>
-                <p class="text-secondary small mb-0">
-                    Your session is encrypted and authenticated. Only you can view your personal risk assessments and threat scans.
-                </p>
+        </div>
+
+        <!-- Chart 2: Threat Analysis by Category (Bar) -->
+        <div class="col-lg-7">
+            <div class="cyber-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-white fw-bold mb-0">
+                        <i class="bi bi-bar-chart-line text-info me-2"></i>Analyses by Category
+                    </h6>
+                    <span class="badge bg-dark border border-secondary text-secondary small">4 Modalities</span>
+                </div>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div class="d-flex justify-content-around mt-3 small text-secondary">
+                    <span><i class="bi bi-person-badge text-info me-1"></i>Profile ({{ profile_count }})</span>
+                    <span><i class="bi bi-chat-left-dots text-primary me-1"></i>Message ({{ message_count }})</span>
+                    <span><i class="bi bi-people text-warning me-1"></i>Impersonation ({{ impersonation_count }})</span>
+                    <span><i class="bi bi-file-earmark-code text-danger me-1"></i>APK ({{ app_count }})</span>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Recent Analyses Section -->
+    <div class="cyber-card p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold text-white mb-0">
+                    <i class="bi bi-journal-text text-info me-2"></i>Recent Risk Assessments
+                </h5>
+                <span class="text-secondary small">Latest threat investigations performed by your account</span>
+            </div>
+            <a href="{% url 'dashboard:history' %}" class="btn btn-cyber-outline btn-sm mt-2 mt-sm-0">
+                View All Analyses <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        {% if recent_analyses %}
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+                    <thead>
+                        <tr class="text-secondary small text-uppercase" style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                            <th>Type</th>
+                            <th>Target / Input Summary</th>
+                            <th>Risk Score</th>
+                            <th>Risk Level</th>
+                            <th>Confidence</th>
+                            <th>Timestamp</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in recent_analyses %}
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td>
+                                    <span class="badge bg-dark border border-secondary text-white py-1 px-2">
+                                        <i class="bi {{ record.type_icon }} me-1 text-info"></i>{{ record.get_analysis_type_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold text-white d-inline-block text-truncate" style="max-width: 260px;" title="{{ record.input_summary }}">
+                                        {{ record.input_summary }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="fw-bold fs-6 score-number {% if record.risk_score >= 70 %}text-danger{% elif record.risk_score >= 40 %}text-warning{% else %}text-success{% endif %}">
+                                        {{ record.risk_score }}/100
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="risk-badge {{ record.badge_class }}">
+                                        {{ record.get_risk_level_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="text-secondary small">{{ record.confidence }}%</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">{{ record.created_at|date:"M d, H:i" }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'dashboard:record_detail' record.pk %}" class="btn btn-cyber-outline btn-sm py-1 px-2" title="View Full Report">
+                                        <i class="bi bi-eye me-1"></i>Report
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="feature-icon-box icon-cyan mx-auto mb-3">
+                    <i class="bi bi-search"></i>
+                </div>
+                <h5 class="text-white fw-bold mb-1">No Threat Analyses Yet</h5>
+                <p class="text-secondary small mb-3">
+                    Start by scanning a suspicious profile, message, account handle, or mobile application.
+                </p>
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{% url 'risk_detection:profile_analyze' %}" class="btn btn-cyber-primary btn-sm">
+                        <i class="bi bi-person-badge me-1"></i>Analyze Profile
+                    </a>
+                    <a href="{% url 'risk_detection:message_analyze' %}" class="btn btn-cyber-outline btn-sm">
+                        <i class="bi bi-chat-dots me-1"></i>Scan Message
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const riskData = {{ risk_chart_data|safe }};
+    const categoryData = {{ category_chart_data|safe }};
+
+    // Chart 1: Risk Distribution (Doughnut)
+    const ctxRisk = document.getElementById('riskDistributionChart').getContext('2d');
+    new Chart(ctxRisk, {
+        type: 'doughnut',
+        data: {
+            labels: ['Safe (0-39)', 'Suspicious (40-69)', 'High Risk (70-100)'],
+            datasets: [{
+                data: riskData,
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                borderColor: '#111a2e',
+                borderWidth: 3,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            cutout: '70%'
+        }
+    });
+
+    // Chart 2: Category Bar Chart
+    const ctxCat = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctxCat, {
+        type: 'bar',
+        data: {
+            labels: ['Profile', 'Message', 'Impersonation', 'Mobile APK'],
+            datasets: [{
+                label: 'Analyses Count',
+                data: categoryData,
+                backgroundColor: [
+                    'rgba(6, 182, 212, 0.75)',
+                    'rgba(59, 130, 246, 0.75)',
+                    'rgba(245, 158, 11, 0.75)',
+                    'rgba(239, 68, 68, 0.75)'
+                ],
+                borderColor: ['#06b6d4', '#3b82f6', '#f59e0b', '#ef4444'],
+                borderWidth: 1,
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8' }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                    ticks: { color: '#94a3b8', stepSize: 1 }
+                }
+            }
+        }
+    });
+});
+</script>
 {% endblock %}

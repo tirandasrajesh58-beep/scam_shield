@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Explainable Risk Report — {{ record.input_summary }} — Scam Shield{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Breadcrumb & Header Navigation -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:home' %}" class="text-info text-decoration-none">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard:history' %}" class="text-info text-decoration-none">History</a></li>
+                    <li class="breadcrumb-item active text-secondary" aria-current="page">Audit #{{ record.id }}</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold text-white mb-0">
+                <i class="bi bi-file-earmark-medical text-info me-2"></i>Explainable Threat Assessment Report
+            </h3>
+        </div>
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a href="{% url 'dashboard:history' %}" class="btn btn-cyber-outline btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>Back to History
+            </a>
+            <a href="{% url 'dashboard:record_delete' record.pk %}" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash me-1"></i>Delete Record
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left: Risk Score Severity Card -->
+        <div class="col-lg-5">
+            <div class="cyber-card p-4 text-center h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="badge bg-dark border border-secondary text-white py-1 px-2">
+                        <i class="bi {{ record.type_icon }} me-1 text-info"></i>{{ record.get_analysis_type_display }}
+                    </span>
+                    <span class="risk-badge {{ record.badge_class }}">
+                        {{ record.get_risk_level_display }}
+                    </span>
+                </div>
+
+                <div class="py-4">
+                    <div class="small text-secondary text-uppercase fw-semibold tracking-wider mb-1">Assessed Risk Score</div>
+                    <div class="display-1 fw-bold score-number {% if record.risk_score >= 70 %}text-danger{% elif record.risk_score >= 40 %}text-warning{% else %}text-success{% endif %}">
+                        {{ record.risk_score }}<span class="fs-4 text-secondary">/100</span>
+                    </div>
+                    <div class="fw-bold fs-5 mt-2 {% if record.risk_score >= 70 %}text-danger{% elif record.risk_score >= 40 %}text-warning{% else %}text-success{% endif %}">
+                        {% if record.risk_score >= 70 %}HIGH RISK DETECTED
+                        {% elif record.risk_score >= 40 %}SUSPICIOUS ACTIVITY DETECTED
+                        {% else %}SAFE / LOW RISK PROFILE{% endif %}
+                    </div>
+                    <div class="text-muted small mt-2">
+                        Model Confidence: <strong class="text-white">{{ record.confidence }}%</strong>
+                    </div>
+                </div>
+
+                <!-- Target Meta Summary -->
+                <div class="border-top border-secondary border-opacity-25 pt-3 text-start small">
+                    <div class="mb-2">
+                        <span class="text-secondary">Target Evaluated:</span><br>
+                        <span class="text-white fw-semibold fs-6">{{ record.input_summary }}</span>
+                    </div>
+                    <div class="mb-2">
+                        <span class="text-secondary">Conducted At:</span>
+                        <span class="text-white">{{ record.created_at|date:"F d, Y - H:i:s" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-secondary">Assigned Analyst:</span>
+                        <span class="text-white">{{ record.user.username }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Explainable AI Factors & Recommendations -->
+        <div class="col-lg-7">
+            <div class="cyber-card p-4 mb-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-lightbulb text-warning fs-5"></i>
+                    <h5 class="fw-bold text-white mb-0">Explainable AI Risk Factors</h5>
+                </div>
+                <p class="text-secondary small mb-3">
+                    Granular risk indicators contributing to the final assessed probability score:
+                </p>
+
+                {% if record.reasons %}
+                    <ul class="list-group list-group-flush bg-transparent mb-3">
+                        {% for reason in record.reasons %}
+                            <li class="list-group-item bg-transparent text-white px-0 py-2 border-secondary border-opacity-25 d-flex align-items-start gap-2">
+                                <i class="bi bi-exclamation-circle-fill {% if record.risk_score >= 70 %}text-danger{% elif record.risk_score >= 40 %}text-warning{% else %}text-info{% endif %} mt-1"></i>
+                                <span>{{ reason }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted small">No anomalous risk factors were triggered.</p>
+                {% endif %}
+
+                {% if record.factor_weights %}
+                    <h6 class="text-white fw-bold mt-4 mb-2 small text-uppercase tracking-wider">Feature Contribution Weights:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-dark table-bordered border-secondary mb-0">
+                            <thead>
+                                <tr class="text-secondary small">
+                                    <th>Feature Name</th>
+                                    <th class="text-end">Contribution Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for feat, weight in record.factor_weights.items %}
+                                    <tr>
+                                        <td class="text-white">{{ feat }}</td>
+                                        <td class="text-end fw-mono {% if weight > 0 %}text-danger{% else %}text-success{% endif %}">
+                                            {% if weight > 0 %}+{{ weight }}{% else %}{{ weight }}{% endif %} pts
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Actionable Recommendations Card -->
+            <div class="cyber-card p-4 border-start border-warning border-4">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-shield-check text-warning fs-5"></i>
+                    <h5 class="fw-bold text-white mb-0">Security Recommendation</h5>
+                </div>
+                <p class="text-light mb-0">
+                    {{ record.recommendation|default:"Standard caution advised. No special intervention required." }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
