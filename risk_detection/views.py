@@ -2,12 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import ProfileAnalysisForm
-from .services.profile_rules import analyze_profile_heuristics
+from .services.profile_ml import predict_profile_risk_ml
 from dashboard.models import AnalysisRecord
 
 def profile_analyze(request):
     """
-    Evaluates social media profile risk using explainable heuristic feature extraction.
+    Evaluates social media profile risk using trained Random Forest ML + Explainable heuristics.
     Saves analysis to AnalysisRecord for logged-in users.
     """
     result = None
@@ -17,7 +17,7 @@ def profile_analyze(request):
         form = ProfileAnalysisForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
-            result = analyze_profile_heuristics(data)
+            result = predict_profile_risk_ml(data)
 
             # Persist to database if authenticated
             if request.user.is_authenticated:

@@ -1,0 +1,101 @@
+{
+  "model_name": "Random Forest",
+  "features": [
+    "followers",
+    "following",
+    "posts",
+    "account_age_days",
+    "is_verified",
+    "has_profile_pic",
+    "has_bio",
+    "has_external_link",
+    "digits_ratio",
+    "following_follower_ratio",
+    "posts_per_day"
+  ],
+  "metrics": {
+    "accuracy": 0.9958,
+    "precision": 0.9917,
+    "recall": 1.0,
+    "f1_score": 0.9959,
+    "roc_auc": 0.9999,
+    "confusion_matrix": [
+      [
+        119,
+        1
+      ],
+      [
+        0,
+        120
+      ]
+    ]
+  },
+  "all_models_comparison": {
+    "Logistic Regression": {
+      "accuracy": 0.9875,
+      "precision": 0.9835,
+      "recall": 0.9917,
+      "f1_score": 0.9876,
+      "roc_auc": 0.9995,
+      "confusion_matrix": [
+        [
+          118,
+          2
+        ],
+        [
+          1,
+          119
+        ]
+      ]
+    },
+    "Random Forest": {
+      "accuracy": 0.9958,
+      "precision": 0.9917,
+      "recall": 1.0,
+      "f1_score": 0.9959,
+      "roc_auc": 0.9999,
+      "confusion_matrix": [
+        [
+          119,
+          1
+        ],
+        [
+          0,
+          120
+        ]
+      ]
+    },
+    "Gradient Boosting": {
+      "accuracy": 0.9875,
+      "precision": 0.9835,
+      "recall": 0.9917,
+      "f1_score": 0.9876,
+      "roc_auc": 0.9997,
+      "confusion_matrix": [
+        [
+          118,
+          2
+        ],
+        [
+          1,
+          119
+        ]
+      ]
+    }
+  },
+  "feature_importances": {
+    "posts": 0.3279,
+    "account_age_days": 0.2285,
+    "following": 0.139,
+    "following_follower_ratio": 0.1068,
+    "digits_ratio": 0.0899,
+    "followers": 0.0538,
+    "posts_per_day": 0.0357,
+    "is_verified": 0.0056,
+    "has_profile_pic": 0.0044,
+    "has_external_link": 0.0043,
+    "has_bio": 0.0041
+  },
+  "training_timestamp": "2026-10-08T12:18:37.393138",
+  "dataset_sample_size": 1200
+}
